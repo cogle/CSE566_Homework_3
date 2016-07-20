@@ -13,12 +13,12 @@ cluster runs and measure the differences in performance.
 
 #### Test 1
 <p>
-In this test we will be holding the **number of stars**, **starmass** and **t_final**
-constant while manipulating the **number of nodes**.
+In this test we will be holding the <b>number of stars</b>, <b>starmass</b> and <b>t_final</b>
+constant while manipulating the <b>number of nodes</b>.
 </p>
 <p>
 The test will be ran with the following parameters 
-**mpiexec -n VARIABLE ./a.out 1024 200.0 5000 0**
+<b>mpiexec -n VARIABLE ./a.out 1024 200.0 5000 0</b>
 </p>
 
 
@@ -189,12 +189,12 @@ appear again in our results.
 
 #### Test 2
 <p>
-In this test we will be holding the **number of cores**, **starmass** and **t_final**
-constant while manipulating the ** number of stars**.
+In this test we will be holding the <b>number of cores</b>, <b>starmass</b> and <b>t_final</b>
+constant while manipulating the <b>number of stars</b>.
 </p>
 <p>
 The test will be ran with the following parameters 
-**mpiexec -n 8 ./a.out VARIABLE 200.0 5000 0**
+<b>mpiexec -n 8 ./a.out VARIABLE 200.0 5000 0</b>
 </p>
 
 #### Hypothesis
@@ -326,12 +326,12 @@ please with this graph and the way that it looks.
 
 #### Test 3
 <p>
-In this test we will be holding the **number of cores**, **starmass** and **number of stars**
-constant while manipulating the **t_final**.
+In this test we will be holding the <b>number of cores</b>, <b>starmass</b> and <b>number of stars</b>
+constant while manipulating the <b>t_final</b>.
 </p>
 <p>
 The test will be ran with the following parameters 
-**mpiexec -n 8 ./a.out 1024 200.0 VARIABLE 0**
+<b>mpiexec -n 8 ./a.out 1024 200.0 VARIABLE 0</b>
 </p>
 
 #### Hypothesis
@@ -823,7 +823,7 @@ completion.  The speed with which the final test ran demonstrates the power of
 the cluster when solving a complex problem. 
 <p>
 
-### Enhancing the code
+<h3>Enhancing the code</h3>
 <p>
 I will admit I was really unable to get much performance gain out of the code 
 without having to tweak the optimization level. It actually looked like using 
@@ -956,6 +956,20 @@ py.iplot(figure, filename='Opt-Node')
     <script data-plotly="cogle:39"  src="https://plot.ly/embed.js" async></script>
 </div>
 
+<h3>Optimized Code Run Analysis</h3>
+<p>
+So from the code above we see that our code is indeed faster overall. However as
+the node size begins to increase we notice a performance tradeoff. The time that
+it takes to run our code begins to take longer. I think that this stems from the
+fact the in order to run the code we spawn an OpenMP thread for each process. 
+However since the number of stars is relatively low and the processes number is
+high using this really hinders performance as we must spawn these threads to 
+solve a little problem. 
+The line for the equation of best fit is listed on our graph. As stated above 
+the runtime is O(n^2) and therefore I picked a quadratic function in order to
+determine the line of best fit for this particular graph.  
+<p>
+
 
 ```python
 import plotly.plotly as py
@@ -1050,16 +1064,40 @@ py.iplot(figure, filename='Opt-Stars')
 
 
 <div>
-    <a href="https://plot.ly/~cogle/43/" target="_blank" 
+    <a href="https://plot.ly/~cogle/41/" target="_blank" 
        title="OpenMP: Time to run vs Optimization" 
        style="display: block; text-align: center;">
        
-        <img src="https://plot.ly/~cogle/43.png" alt="" 
+        <img src="https://plot.ly/~cogle/41.png" alt="" 
              style="max-height:1000"  
              onerror="this.onerror=null;this.src='https://plot.ly/404.png';" />
     </a>
-    <script data-plotly="cogle:43"  src="https://plot.ly/embed.js" async></script>
+    <script data-plotly="cogle:41"  src="https://plot.ly/embed.js" async></script>
 </div>
+
+<h3>Further Optimized Code Run Analysis</h3>
+<p>
+Again we see that our code is faster overall then the code from the un-optimized
+section. In addition this code fits the quadratic curve very nicely, again. 
+Comparing it with the first graph we see that this code too is significantly 
+faster than running it without the optimizations made. 
+The line for the equation of best fit is listed on the graph again I picked a 
+quadratic curve to model this data and it fit very, very well.
+<p>
+
+<h3>Conclusion</h3>
+<p>
+From this project we can see that the benefits of running on the cluster are not so clear cut; while with complex problems its certainly performs much better defining what is a complex problem and when to use the cluster is the challenging part. This was demonstrated in the first part of the problem when our cluster performed worse than just running the code locally. The problem was simply not strenuous enough to warrant using the cluster, and therefore we saw suboptimal results.
+</p>
+<p>
+One of the things that I got sucked into doing this project was collecting lots of data. The data collection for this particular project took a lot longer than I anticipated. I was seeing a lot of variance in the runs on a given day as a result I spent a lot of time trying to figure out why I was seeing these discrepancies and trying to figure out what was wrong with the data that I had collected.
+</p>
+<p>
+In optimizing the code, I knew that I needed to optimize two files in order for performance benefits to be seen. Optimizing derivs.cpp would allow the server to go faster, but optimizing this file alone would have no effect on the runtime. This is because derivs_client.cpp would hold up the derivs server. Having distributed the work to the clients the server would still need have to wait on these clients to finish up working before it could progress. Therefore, in both of the files I implemented OpenMP multithreading. In addition, I rearranged some of the code in derivs_client.cpp to be non-blocking. I did this so that the retval array could initialize and with the hopes that by doing this the other variables might be able to get their values. This would allow the program to complete some work that might not get done had it been waiting.
+</p>
+<p>
+With the OpenMPI there were some thing that I really wanted to check out but, did not have enough time to. One thing that I wanted to do was to play around with the order that the messages were being sent. This way maybe I could start the biggest ones first asynchronously and then do the smaller ones. Also I used OpenMP in my code in order to try and speed up the algorithm. I have a feeling that like the cluster using threads in this code is NOT a performance benefit unless the problem is complex. Just like the cluster needed to have a really hard problem, the overhead from creating the threads and then dividing up the task needs to be worth the cost. This one thing I really wish I had time to explore more in depth but given the time constraints I was unable to explore this formally but I did do a series of little problem runs and noticed that with larger problems and more threads the code seems to run faster than running it with less threads. 
+</p>
 
 
 ```python

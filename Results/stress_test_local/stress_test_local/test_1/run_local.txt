@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+#  Sample openmpi job executed locally
+#
+#make -n    <- will show compile command without running it
+#make       #<- will actually make a.out
+#
+#  Use mpiexec to run on local machine.
+#
+#number after -n is number of nodes
+#parameters are: numstars starmass t_final display (display may be 1 for local run)
+make 
+#make scalasca
+module add cse566
+#scalasca -instrument mpicc -o a.out  -lm
+mpiexec -n 24 ./a.out 8000  200.0 10000 0
+rm -rf a.out
+
+exit 0
+
+
+

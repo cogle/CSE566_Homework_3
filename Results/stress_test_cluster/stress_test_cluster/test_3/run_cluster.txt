@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+#  Sample openmpi job
+#  Change this script to refer to your path below.
+#  Compile the program with tau_cc.sh.
+#
+#make -n    <- will show compile command without running it
+#make       <- will actually make a.out
+
+#$ -q all.q
+#$ -N stress_test_30
+#$ -pe mpi 30
+#$ -cwd 
+
+
+#parameters are: numstars starmass t_final display (display must be 0 for cluster run)
+#change the line below to refer to your path.
+module add cse566
+mpiexec --mca btl ^openib /home/warehouse/cogle/cse566/hw3_cluster/a.out 5000 200.0 10000 0
+
+exit 0

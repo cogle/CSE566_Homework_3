@@ -1,0 +1,89 @@
+In this problem we will analyze multiple factors and how they influence the
+performance of our code. We will divide this performance analysis into three
+sections. The first section will look at the performance of simply running the
+program locally. The second section will look at how the program performs on the
+WUSTL cluster. Finally we will compare our results from the local run and the
+cluster runs and measure the differences in performance.
+
+In this test we will be holding the number of stars, starmass and t_final
+constant while manipulating the number of nodes.
+
+The test will be ran with the following parameters
+**mpiexec -n VARIABLE ./a.out 1024 200.0 5000 0**
+
+
+The results of running the test are above. From these results I see two points
+of interest that will be the focus of this section's discussion.
+
+The first point of interest is that it is faster to run the code on average
+as single process rather than use two. Now I will admit that the variance for
+running it as a single process is much greater and exceeds the time for running
+it with two processes; however on average its faster. This is interesting
+because I would have thought that no matter what using two process would be
+faster. So in order to determine what is happening here it is time to bring out
+Scalasca and see where the bottleneck is occurring.
+
+
+SCALASCA
+
+The second point of interest is something that I noticed last time when running
+the test. The mysterious bump has returned yet again, and in the exact same
+spot. This is really interesting and exciting. This is definitely hinting at a
+weak spot with regards to the chip. After having ran two separate high
+performance libraries both of them demonstrated a slow down over the same range.
+This really makes me wonder how these processes are being created and handled by
+the chip. In the previous assignment I attributed the poor performance in this
+range due to the fact that our chip is actually only physically 8 cores, yet
+through Hyper Threading it can pretend like it has 16 Threads. However, this
+code is using a message passaging system, which does not rely on threads, but
+rather is dependent upon processes. I am now beginning to wonder if this is a
+scheduling problem and not so much a hardware problem. The reason I say this is
+because like in the previous assignment the performance returns to near pre-hump
+levels after clearing 18 cores. It is really interesting that this hump would
+appear again in our results.
+
+
+Having looked at the code in both dervis.cpp and dervis_client.cpp, the
+algorithm relies on a O(n^2) for loop in order to iterate through all assigned
+points. Therefore since each process is assigned a portion of the stars to
+iterate through in a O(n^2) loop as we increase the number of stars the time to
+complete will increase too in an O(n^2) manner.
+
+So from the graph we don't really see any surprises like we saw in the previous
+section. From this test I really didn't expect to see any surprises as this test
+is simply manipulating the variables of the program and not hardware
+configurations. I might of expected a sharper increase in the time it takes as
+the number of stars increased because now we have much more information that we
+have to transfer amongst processes. Therefore due to latency in the
+communication system, a factor of the problem out of our control, it would take
+longer to pass all that information from one place to the next. However, I am
+please with this graph and the way that it looks.
+
+So in this instance the code of interest resides in Gal.cpp, this code is
+executed by the server process. Since we are holding all other variables in the
+problem constant I predict that this graph will be linear.
+
+
+
+Looking at this graph and comparing it to the previous graph it is quite a
+contrast. The first thing that I noticed as I was entering in the number is that
+the amount of variance for each run was much, much greater than that of running
+it locally. When running the test with a lower number of runs it seems that
+despite being on the same core the variance in time is much greater. I wonder if
+this is a side-effect of running the code on the cluster. In addition to having
+to run our program other programs may be running on the same core. Another thing
+is that since this is a cluster environment each CPU may have a larger overhead,
+that is the CPU may be doing more tasks such as communicating with other nodes
+in the cluster, as opposed to when we are running locally we can be pretty much
+sure that our process is the only one running.
+
+Overall the node does project a downward trend. The problem that was utilized
+in the test may not have been best suited for this type of experiment. The
+problem could be easily solved with a single machine and doesn't highlight the
+advantages, if any, of using a cluster. Therefore in order to demonstrate what
+advantages may come from using a cluster in order to solve a complex problem,
+another more strenuous test will be ran. It was slightly surprising to me that
+using 48 cores on the cluster about two times slower than that of just running
+it locally. Based on these results I think that the large amount of
+communication and small problem size does not demonstrate the cluster's full
+potential.

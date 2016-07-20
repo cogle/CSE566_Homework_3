@@ -1,0 +1,14 @@
+mpic++ Gal.cpp derivs.cpp diffeq.cpp modeldata.cpp point.cpp derivs_client.cpp  -L/usr/X11R6/lib -lX11 -lm
+--------------------------------------------------------------------------
+[[50008,1],3]: A high-performance Open MPI point-to-point messaging module
+was unable to find any relevant network interfaces:
+
+Module: OpenFabrics (openib)
+  Host: linuxlab007
+
+Another transport will be used instead, although this may result in
+lower performance.
+--------------------------------------------------------------------------
+
+Number of nodes 32
+Elapsed wall clock time (seconds) 7.024330

@@ -1,0 +1,14 @@
+make: Nothing to be done for `default'.
+--------------------------------------------------------------------------
+[[32823,1],1]: A high-performance Open MPI point-to-point messaging module
+was unable to find any relevant network interfaces:
+
+Module: OpenFabrics (openib)
+  Host: linuxlab004
+
+Another transport will be used instead, although this may result in
+lower performance.
+--------------------------------------------------------------------------
+
+Number of nodes 8
+Elapsed wall clock time (seconds) 21.040358
